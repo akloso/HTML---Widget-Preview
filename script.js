@@ -1,276 +1,111 @@
-const editorArea = document.getElementById('editor-area');
-const statusElement = document.getElementById('status');
-const runButton = document.getElementById('run-preview');
-const reloadButton = document.getElementById('reload-preview');
-const copyButton = document.getElementById('copy-code');
-const clearButton = document.getElementById('clear-code');
-const resetButton = document.getElementById('reset-all');
+const $ = (id) => document.getElementById(id);
+const editorArea = $('editor-area');
+const statusElement = $('status');
+const runButton = $('run-preview');
+const reloadButton = $('reload-preview');
+const copyButton = $('copy-code');
+const clearButton = $('clear-code');
+const resetButton = $('reset-all');
 const modeButtons = Array.from(document.querySelectorAll('.mode-tab'));
+const modeSelect = $('mode-select');
 const viewportButtons = Array.from(document.querySelectorAll('.viewport-button'));
-const previewStage = document.getElementById('preview-stage');
-const previewHeightInput = document.getElementById('preview-height');
-const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-const primaryMenu = document.getElementById('primary-menu');
-const currentYear = document.getElementById('current-year');
+const previewStage = $('preview-stage');
+const previewHeightInput = $('preview-height');
+const mobileMenuToggle = $('mobile-menu-toggle');
+const primaryMenu = $('primary-menu');
+const currentYear = $('current-year');
+const activeModeIcon = $('active-mode-icon');
+const activeModeLabel = $('active-mode-label');
+const editorStatusChip = $('editor-status-chip');
+const previewStatusChip = $('preview-status-chip');
+const deviceMeta = $('device-meta');
+const zoomSelect = $('zoom-select');
+const browserZoom = $('browser-zoom');
+const contextHelp = $('context-help');
+const wrapToggle = $('wrap-toggle');
+const templateSelect = $('template-select');
+const autoPreviewToggle = $('auto-preview');
+const recentRunsSelect = $('recent-runs');
+const fullscreenOverlay = $('fullscreen-overlay');
+const fullscreenStage = $('fullscreen-stage');
+const fullscreenMeta = $('fullscreen-meta');
+const closeFullscreenButton = $('close-fullscreen');
+const panelDivider = $('panel-divider');
+const workspacePanels = $('workspace-panels');
+const heightResizer = $('height-resizer');
 
 const DEFAULT_MODE = 'combined';
 const DEFAULT_HEIGHT = 640;
 const MIN_HEIGHT = 240;
 const MAX_HEIGHT = 1600;
+const AUTOPREVIEW_DELAY = 850;
 
-const state = {
-  mode: DEFAULT_MODE,
-  combined: '',
-  divCode: '',
-  divScript: '',
-  buttonCode: '',
-  buttonScript: '',
-  iframeCode: '',
-  htmlCode: '',
-  cssCode: '',
-  javascriptCode: '',
-  previewDocument: '',
-  previewWidth: 'desktop',
-  previewHeight: DEFAULT_HEIGHT,
+const state = { mode: DEFAULT_MODE, combined: '', divCode: '', divScript: '', buttonCode: '', buttonScript: '', iframeCode: '', htmlCode: '', cssCode: '', javascriptCode: '', previewDocument: '', previewWidth: 'desktop', previewHeight: DEFAULT_HEIGHT, zoom: 1, wrap: true, autoPreview: false, recentRuns: [] };
+
+const modes = {
+  combined: { label: 'Combined Code', icon: '⌘', help: 'Paste the full snippet exactly as provided.', fields: [{ key: 'combined', label: 'Complete widget or embed code', help: 'Paste the full snippet exactly as provided.', placeholder: '<div>Widget container</div>\n<script>document.body.dataset.widgetStatus = "loaded"<\/script>' }] },
+  'div-script': { label: 'DIV + Script', icon: '▣', help: 'Use this for widgets that provide a placeholder plus a loader script.', fields: [{ key: 'divCode', label: 'DIV / Placeholder Code', help: 'Paste the placeholder element where the widget should appear.', placeholder: '<div id="widget-root"></div>' }, { key: 'divScript', label: 'Script Code', help: 'Paste the provider script, usually placed before the closing body tag.', placeholder: '<script>document.getElementById("widget-root").textContent = "Widget loaded";<\/script>' }] },
+  'button-script': { label: 'Button + Script', icon: '◈', help: 'Use this for popup widgets opened from a trigger button.', fields: [{ key: 'buttonCode', label: 'Button Code', help: 'Paste the button or trigger element.', placeholder: '<button id="open-widget" type="button">Open widget</button>' }, { key: 'buttonScript', label: 'Script and Configuration Code', help: 'Paste the popup loader and configuration.', placeholder: '<script>document.getElementById("open-widget").addEventListener("click", () => alert("Popup widget"));<\/script>' }] },
+  iframe: { label: 'Iframe Only', icon: '▤', help: 'Paste a complete iframe snippet and test its responsive size.', fields: [{ key: 'iframeCode', label: 'Iframe Embed Code', help: 'Paste the complete iframe snippet.', placeholder: '<iframe src="https://example.com" width="100%" height="480" title="Example"><\/iframe>' }] },
+  'html-css-js': { label: 'HTML + CSS + JavaScript', icon: '{ }', help: 'Compose separate HTML, CSS, and JavaScript into one preview document.', fields: [{ key: 'htmlCode', label: 'HTML', help: 'Markup rendered inside the preview body.', placeholder: '<button id="test">Click me</button>' }, { key: 'cssCode', label: 'CSS', help: 'Styles scoped to the preview document.', placeholder: 'button { padding: 12px 20px; border-radius: 10px; }' }, { key: 'javascriptCode', label: 'JavaScript', help: 'Script executed inside the preview iframe only.', placeholder: 'document.getElementById("test").onclick = () => alert("Working");' }] },
 };
 
-const modeFields = {
-  combined: [
-    { key: 'combined', label: 'Complete widget or embed code', placeholder: '<div>...</div>\n<script>...</script>' },
-  ],
-  'div-script': [
-    { key: 'divCode', label: 'DIV / Placeholder code', placeholder: '<div class="widget-placeholder"></div>' },
-    { key: 'divScript', label: 'Script code', placeholder: '<script src="https://provider.com/widget.js"></script>' },
-  ],
-  'button-script': [
-    { key: 'buttonCode', label: 'Button code', placeholder: '<button type="button">Open widget</button>' },
-    { key: 'buttonScript', label: 'Script and configuration code', placeholder: '<script>...</script>' },
-  ],
-  iframe: [
-    { key: 'iframeCode', label: 'Iframe embed code', placeholder: '<iframe src="https://example.com"></iframe>' },
-  ],
-  'html-css-js': [
-    { key: 'htmlCode', label: 'HTML', placeholder: '<button id="test">Click me</button>' },
-    { key: 'cssCode', label: 'CSS', placeholder: 'button { padding: 12px 20px; }' },
-    { key: 'javascriptCode', label: 'JavaScript', placeholder: 'document.getElementById("test").onclick = function () { alert("Working"); };' },
-  ],
+const templates = {
+  basic: { label: 'Basic HTML', mode: 'combined', values: { combined: '<section style="font-family: system-ui; padding: 24px; border: 1px solid #dbe8e1; border-radius: 16px;">\n  <h2>Hello from the preview</h2>\n  <p>This harmless starter renders entirely inside the iframe.</p>\n</section>' } },
+  div: { label: 'DIV + Script Widget', mode: 'div-script', values: { divCode: '<div id="generic-widget"></div>', divScript: '<script>\n  const root = document.getElementById("generic-widget");\n  root.innerHTML = "<strong>Generic widget loaded</strong><p>No external provider required.</p>";\n<\/script>' } },
+  popup: { label: 'Popup Button Widget', mode: 'button-script', values: { buttonCode: '<button id="open-popup" type="button">Open popup</button>\n<div id="popup-output" aria-live="polite"></div>', buttonScript: '<script>\n  document.getElementById("open-popup").addEventListener("click", () => {\n    document.getElementById("popup-output").textContent = "Popup action triggered.";\n  });\n<\/script>' } },
+  iframe: { label: 'Iframe Embed', mode: 'iframe', values: { iframeCode: '<iframe title="Inline example" srcdoc="<h1 style=&quot;font-family:system-ui&quot;>Iframe preview</h1><p>Embedded safely with srcdoc.</p>" width="100%" height="320"></iframe>' } },
+  contact: { label: 'Contact Form', mode: 'html-css-js', values: { htmlCode: '<form>\n  <label>Name <input name="name" placeholder="Asha Rao"></label>\n  <label>Email <input name="email" type="email" placeholder="asha@example.com"></label>\n  <button type="submit">Send</button>\n  <p id="form-status" role="status"></p>\n</form>', cssCode: 'form { display: grid; gap: 12px; max-width: 420px; font-family: system-ui; }\nlabel { display: grid; gap: 6px; font-weight: 700; }\ninput, button { padding: 12px; border: 1px solid #bdd0c6; border-radius: 10px; }\nbutton { background: #059669; color: white; font-weight: 800; }', javascriptCode: 'document.querySelector("form").addEventListener("submit", (event) => {\n  event.preventDefault();\n  document.getElementById("form-status").textContent = "Form preview submitted locally.";\n});' } },
 };
 
-function setStatus(message, type = 'info') {
-  statusElement.textContent = message;
-  statusElement.className = `status status-${type}`;
-}
+let autoPreviewTimer;
+let lastFocusedElement;
 
-function syncModeButtons() {
-  modeButtons.forEach((button) => {
-    const isActive = button.dataset.mode === state.mode;
-    button.setAttribute('aria-checked', String(isActive));
-    button.tabIndex = isActive ? 0 : -1;
-  });
-}
+function setStatus(message, type = 'info') { statusElement.textContent = message; statusElement.className = `status status-${type}`; }
+function setPreviewStatus(message) { previewStatusChip.textContent = message; }
+function getSelectedCode() { if (state.mode === 'combined') return state.combined; if (state.mode === 'div-script') return `${state.divCode}\n${state.divScript}`; if (state.mode === 'button-script') return `${state.buttonCode}\n${state.buttonScript}`; if (state.mode === 'iframe') return state.iframeCode; return `<style>\n${state.cssCode}\n</style>\n${state.htmlCode}\n<script>\n${state.javascriptCode}\n<\/script>`; }
+function selectedCharCount() { return getSelectedCode().length; }
+function resetTextareaScroll() { editorArea.querySelectorAll('textarea').forEach((textarea) => { textarea.scrollLeft = 0; }); }
+function queueAutoPreview() { clearTimeout(autoPreviewTimer); if (!state.autoPreview) return; autoPreviewTimer = setTimeout(() => { if (getSelectedCode().trim()) runPreview(); }, AUTOPREVIEW_DELAY); }
+function syncChrome() { const mode = modes[state.mode]; activeModeIcon.textContent = mode.icon; activeModeLabel.textContent = mode.label; contextHelp.textContent = mode.help; editorStatusChip.textContent = `${selectedCharCount()} chars`; modeSelect.value = state.mode; viewportButtons.forEach((button) => button.setAttribute('aria-checked', String(button.dataset.width === state.previewWidth))); zoomSelect.value = String(state.zoom); browserZoom.textContent = `${Math.round(state.zoom * 100)}%`; const widthLabel = state.previewWidth === 'desktop' ? 'auto' : state.previewWidth === 'tablet' ? '768' : '390'; const deviceLabel = state.previewWidth[0].toUpperCase() + state.previewWidth.slice(1); deviceMeta.textContent = `${deviceLabel} · ${widthLabel} × ${state.previewHeight}`; fullscreenMeta.textContent = `${deviceLabel} · ${Math.round(state.zoom * 100)}%`; heightResizer.setAttribute('aria-valuenow', String(state.previewHeight)); }
+function syncModeButtons() { modeButtons.forEach((button) => { const active = button.dataset.mode === state.mode; button.setAttribute('aria-checked', String(active)); button.tabIndex = active ? 0 : -1; }); }
+function updateLineNumbers(textarea, lineNumbers) { const lines = Math.max(1, textarea.value.split('\n').length); lineNumbers.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n'); lineNumbers.scrollTop = textarea.scrollTop; }
+function createEditor(field) { const wrapper = document.createElement('div'); wrapper.className = 'editor-block'; const header = document.createElement('div'); header.className = 'editor-field-header'; const title = document.createElement('div'); title.innerHTML = `<span class="field-title">${field.label}</span><span class="field-help">${field.help}</span>`; const actions = document.createElement('div'); actions.className = 'field-actions'; const count = document.createElement('span'); count.className = 'field-count'; const copy = document.createElement('button'); copy.className = 'field-button'; copy.type = 'button'; copy.textContent = 'Copy'; const clear = document.createElement('button'); clear.className = 'field-button'; clear.type = 'button'; clear.textContent = 'Clear'; actions.append(count, copy, clear); header.append(title, actions); const codeWrap = document.createElement('div'); codeWrap.className = 'code-wrap'; const lineNumbers = document.createElement('pre'); lineNumbers.className = 'line-numbers'; lineNumbers.setAttribute('aria-hidden', 'true'); const textarea = document.createElement('textarea'); textarea.id = field.key; textarea.name = field.key; textarea.className = `code-input${state.wrap ? '' : ' no-wrap'}`; textarea.value = state[field.key]; textarea.placeholder = field.placeholder; textarea.spellcheck = false; textarea.autocapitalize = 'off'; textarea.autocomplete = 'off'; textarea.wrap = state.wrap ? 'soft' : 'off'; const syncField = () => { state[field.key] = textarea.value; count.textContent = `${textarea.value.length} chars`; updateLineNumbers(textarea, lineNumbers); syncChrome(); queueAutoPreview(); }; textarea.addEventListener('input', syncField); textarea.addEventListener('scroll', () => { lineNumbers.scrollTop = textarea.scrollTop; }); textarea.addEventListener('keydown', (event) => { if (event.key === 'Tab') { event.preventDefault(); const start = textarea.selectionStart; const end = textarea.selectionEnd; textarea.setRangeText('  ', start, end, 'end'); syncField(); } }); copy.addEventListener('click', () => copyText(textarea.value, `${field.label} copied.`)); clear.addEventListener('click', () => { textarea.value = ''; syncField(); textarea.focus(); setStatus(`${field.label} cleared.`, 'success'); resetTextareaScroll(); }); codeWrap.append(lineNumbers, textarea); wrapper.append(header, codeWrap); updateLineNumbers(textarea, lineNumbers); count.textContent = `${textarea.value.length} chars`; return wrapper; }
+function renderEditors() { editorArea.replaceChildren(...modes[state.mode].fields.map(createEditor)); syncModeButtons(); syncChrome(); resetTextareaScroll(); }
+function setMode(mode) { if (!modes[mode]) return; state.mode = mode; renderEditors(); setStatus('Ready.', 'info'); if (state.autoPreview) queueAutoPreview(); }
+function buildDocument(code) { return `<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-width, initial-scale=1" />\n  <title>Widget Preview</title>\n  <style>html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}body{margin:0;min-height:100vh;padding:16px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}</style>\n</head>\n<body>\n${code}\n</body>\n</html>`; }
+function createPreviewFrame(documentHtml) { const iframe = document.createElement('iframe'); iframe.className = 'preview-frame'; iframe.title = 'Widget Preview'; iframe.setAttribute('sandbox', 'allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts'); iframe.srcdoc = documentHtml; return iframe; }
+function renderPreview(documentHtml, target = previewStage) { target.replaceChildren(createPreviewFrame(documentHtml)); }
+function hasLikelyVisibleOutput(code) { return code.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<!--[\s\S]*?-->/g, '').trim().length > 0; }
+function updatePreviewPresence(code) { setPreviewStatus(hasLikelyVisibleOutput(code) ? 'Rendered' : 'No visible output'); }
+function runPreview() { const code = getSelectedCode(); if (!code.trim()) { setStatus('Paste code before running the preview.', 'info'); setPreviewStatus('Ready'); return; } setPreviewStatus('Rendering'); setStatus('Rendering preview…', 'info'); state.previewDocument = buildDocument(code); setTimeout(() => { renderPreview(state.previewDocument); updatePreviewPresence(code); setStatus('Preview rendered in-page.', 'success'); rememberRun(); resetTextareaScroll(); }, 120); }
+function reloadPreview() { if (!state.previewDocument) { setStatus('Paste code before reloading the preview.', 'info'); return; } renderPreview(state.previewDocument); setPreviewStatus('Rendered'); setStatus('Preview reloaded.', 'success'); resetTextareaScroll(); }
+async function copyText(text, successMessage) { if (!text.trim()) { setStatus('Nothing to copy yet.', 'info'); return; } try { await navigator.clipboard.writeText(text); setStatus(successMessage, 'success'); } catch { const helper = document.createElement('textarea'); helper.value = text; document.body.append(helper); helper.select(); document.execCommand('copy'); helper.remove(); setStatus(successMessage, 'success'); } }
+function copyCode() { copyText(getSelectedCode(), 'Code copied.'); }
+function clearCurrentMode() { modes[state.mode].fields.forEach((field) => { state[field.key] = ''; }); renderEditors(); setStatus('Current mode cleared.', 'success'); resetTextareaScroll(); queueAutoPreview(); }
+function resetPreview() { previewStage.innerHTML = '<div id="preview-empty" class="preview-empty"><span class="empty-icon" aria-hidden="true">▱</span><strong>Preview ready</strong><span>Paste code and click Run Preview</span></div>'; setPreviewStatus('Ready'); }
+function resetAll() { Object.keys(state).forEach((key) => { if (typeof state[key] === 'string') state[key] = ''; }); state.mode = DEFAULT_MODE; state.previewWidth = 'desktop'; state.previewHeight = DEFAULT_HEIGHT; state.zoom = 1; state.wrap = true; state.autoPreview = false; state.recentRuns = []; previewHeightInput.value = String(DEFAULT_HEIGHT); wrapToggle.checked = true; autoPreviewToggle.checked = false; updateRecentRuns(); renderEditors(); applyPreviewSize(); resetPreview(); setStatus('All fields reset.', 'success'); }
+function applyPreviewSize() { previewStage.classList.remove('preview-desktop', 'preview-tablet', 'preview-mobile'); previewStage.classList.add(`preview-${state.previewWidth}`); previewStage.style.setProperty('--preview-height', `${state.previewHeight}px`); previewStage.style.setProperty('--preview-zoom', String(state.zoom)); syncChrome(); }
+function setViewport(width) { state.previewWidth = width; applyPreviewSize(); }
+function updatePreviewHeight(value = Number(previewHeightInput.value)) { const height = Math.round(Number(value)); if (!Number.isFinite(height) || height < MIN_HEIGHT || height > MAX_HEIGHT) { setStatus('Preview height must be between 240 and 1600 px.', 'error'); previewHeightInput.value = String(state.previewHeight); return; } state.previewHeight = height; previewHeightInput.value = String(height); applyPreviewSize(); }
+function openFullscreen() { if (!state.previewDocument) { setStatus('Run a preview before opening fullscreen.', 'info'); return; } lastFocusedElement = document.activeElement; renderPreview(state.previewDocument, fullscreenStage); fullscreenStage.style.setProperty('--preview-height', `${state.previewHeight}px`); fullscreenStage.style.setProperty('--preview-zoom', String(state.zoom)); fullscreenStage.className = `fullscreen-stage preview-${state.previewWidth}`; fullscreenOverlay.hidden = false; document.body.style.overflow = 'hidden'; syncChrome(); closeFullscreenButton.focus(); }
+function closeFullscreen() { fullscreenOverlay.hidden = true; fullscreenStage.replaceChildren(); document.body.style.overflow = ''; if (lastFocusedElement) lastFocusedElement.focus(); }
+function fieldsHaveContent() { return Object.values(modes).some((mode) => mode.fields.some((field) => state[field.key].trim())); }
+function applyTemplate(key) { const template = templates[key]; if (!template) return; if (fieldsHaveContent() && !confirm('Replace current code with this starter template?')) { templateSelect.value = ''; return; } Object.values(modes).flatMap((mode) => mode.fields).forEach((field) => { state[field.key] = ''; }); Object.assign(state, template.values); setMode(template.mode); templateSelect.value = ''; setStatus(`${template.label} loaded. Click Run Preview when ready.`, 'success'); }
+function rememberRun() { const snapshot = { label: `${modes[state.mode].label} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, mode: state.mode, values: {} }; modes[state.mode].fields.forEach((field) => { snapshot.values[field.key] = state[field.key]; }); state.recentRuns = [snapshot, ...state.recentRuns].slice(0, 3); updateRecentRuns(); }
+function updateRecentRuns() { recentRunsSelect.replaceChildren(); if (!state.recentRuns.length) { recentRunsSelect.add(new Option('No runs yet', '')); recentRunsSelect.disabled = true; return; } recentRunsSelect.add(new Option('Restore recent…', '')); state.recentRuns.forEach((run, index) => recentRunsSelect.add(new Option(run.label, String(index)))); recentRunsSelect.disabled = false; }
+function restoreRecent(index) { const run = state.recentRuns[Number(index)]; if (!run) return; Object.assign(state, run.values); setMode(run.mode); recentRunsSelect.value = ''; setStatus('Recent run restored.', 'success'); if (state.autoPreview) queueAutoPreview(); }
 
-function renderEditors() {
-  editorArea.replaceChildren();
-  modeFields[state.mode].forEach((field) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'editor-block';
-    const label = document.createElement('label');
-    label.htmlFor = field.key;
-    label.textContent = field.label;
-    const textarea = document.createElement('textarea');
-    textarea.id = field.key;
-    textarea.name = field.key;
-    textarea.value = state[field.key];
-    textarea.placeholder = field.placeholder;
-    textarea.spellcheck = false;
-    textarea.autocapitalize = 'off';
-    textarea.autocomplete = 'off';
-    textarea.wrap = 'off';
-    textarea.addEventListener('input', (event) => {
-      state[field.key] = event.target.value;
-    });
-    wrapper.append(label, textarea);
-    editorArea.append(wrapper);
-  });
-  syncModeButtons();
-}
-
-function setMode(mode) {
-  if (!modeFields[mode] || state.mode === mode) return;
-  state.mode = mode;
-  renderEditors();
-  setStatus('');
-}
-
-function getSelectedCode() {
-  switch (state.mode) {
-    case 'combined': return state.combined;
-    case 'div-script': return `${state.divCode}\n${state.divScript}`;
-    case 'button-script': return `${state.buttonCode}\n${state.buttonScript}`;
-    case 'iframe': return state.iframeCode;
-    case 'html-css-js': return `<style>\n${state.cssCode}\n</style>\n${state.htmlCode}\n<script>\n${state.javascriptCode}\n<\/script>`;
-    default: return '';
-  }
-}
-
-function buildDocument(code) {
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Widget Preview</title>
-  <style>
-    html { box-sizing: border-box; }
-    *, *::before, *::after { box-sizing: inherit; }
-    body { margin: 0; min-height: 100vh; }
-  </style>
-</head>
-<body>
-${code}
-</body>
-</html>`;
-}
-
-function createPreviewFrame(documentHtml) {
-  const iframe = document.createElement('iframe');
-  iframe.className = 'preview-frame';
-  iframe.title = 'Widget Preview';
-  iframe.setAttribute('sandbox', 'allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts');
-  iframe.srcdoc = documentHtml;
-  return iframe;
-}
-
-function renderPreview(documentHtml) {
-  previewStage.replaceChildren(createPreviewFrame(documentHtml));
-}
-
-function runPreview() {
-  const code = getSelectedCode();
-  if (!code.trim()) {
-    setStatus('Paste code before running the preview.', 'info');
-    return;
-  }
-  state.previewDocument = buildDocument(code);
-  renderPreview(state.previewDocument);
-  setStatus('Preview updated.', 'success');
-}
-
-function reloadPreview() {
-  if (!state.previewDocument) {
-    setStatus('Paste code before running the preview.', 'info');
-    return;
-  }
-  renderPreview(state.previewDocument);
-  setStatus('Preview updated.', 'success');
-}
-
-async function copyCode() {
-  const code = getSelectedCode();
-  if (!code.trim()) {
-    setStatus('Paste code before running the preview.', 'info');
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(code);
-    setStatus('Code copied.', 'success');
-  } catch {
-    setStatus('Clipboard access failed.', 'error');
-  }
-}
-
-function clearCurrentMode() {
-  modeFields[state.mode].forEach((field) => { state[field.key] = ''; });
-  renderEditors();
-  setStatus('Current mode cleared.', 'success');
-}
-
-function resetPreview() {
-  previewStage.replaceChildren();
-  const empty = document.createElement('div');
-  empty.id = 'preview-empty';
-  empty.className = 'preview-empty';
-  empty.textContent = 'Your preview will appear here after you click Run Preview.';
-  previewStage.append(empty);
-}
-
-function resetAll() {
-  Object.keys(state).forEach((key) => { state[key] = ''; });
-  state.mode = DEFAULT_MODE;
-  state.previewWidth = 'desktop';
-  state.previewHeight = DEFAULT_HEIGHT;
-  previewHeightInput.value = String(DEFAULT_HEIGHT);
-  state.previewDocument = '';
-  renderEditors();
-  syncViewportButtons();
-  applyPreviewSize();
-  resetPreview();
-  setStatus('All fields reset.', 'success');
-}
-
-function moveModeFocus(currentButton, direction) {
-  const currentIndex = modeButtons.indexOf(currentButton);
-  const nextButton = modeButtons[(currentIndex + direction + modeButtons.length) % modeButtons.length];
-  nextButton.focus();
-  setMode(nextButton.dataset.mode);
-}
-
-function syncViewportButtons() {
-  viewportButtons.forEach((button) => {
-    const isActive = button.dataset.width === state.previewWidth;
-    button.setAttribute('aria-checked', String(isActive));
-  });
-}
-
-function applyPreviewSize() {
-  previewStage.classList.remove('preview-desktop', 'preview-tablet', 'preview-mobile');
-  previewStage.classList.add(`preview-${state.previewWidth}`);
-  previewStage.style.setProperty('--preview-height', `${state.previewHeight}px`);
-}
-
-function setViewport(width) {
-  state.previewWidth = width;
-  syncViewportButtons();
-  applyPreviewSize();
-}
-
-function updatePreviewHeight() {
-  const height = Number(previewHeightInput.value);
-  if (!Number.isInteger(height) || height < MIN_HEIGHT || height > MAX_HEIGHT) {
-    setStatus('Invalid preview height.', 'error');
-    previewHeightInput.value = String(state.previewHeight);
-    return;
-  }
-  state.previewHeight = height;
-  applyPreviewSize();
-}
-
-modeButtons.forEach((button) => {
-  button.addEventListener('click', () => setMode(button.dataset.mode));
-  button.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') { event.preventDefault(); moveModeFocus(button, 1); }
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') { event.preventDefault(); moveModeFocus(button, -1); }
-    if (event.key === 'Home') { event.preventDefault(); modeButtons[0].focus(); setMode(modeButtons[0].dataset.mode); }
-    if (event.key === 'End') { event.preventDefault(); modeButtons[modeButtons.length - 1].focus(); setMode(modeButtons[modeButtons.length - 1].dataset.mode); }
-  });
-});
-
-viewportButtons.forEach((button) => {
-  button.addEventListener('click', () => setViewport(button.dataset.width));
-});
-
-mobileMenuToggle.addEventListener('click', () => {
-  const isOpen = primaryMenu.classList.toggle('is-open');
-  mobileMenuToggle.setAttribute('aria-expanded', String(isOpen));
-});
-
-runButton.addEventListener('click', runPreview);
-reloadButton.addEventListener('click', reloadPreview);
-copyButton.addEventListener('click', copyCode);
-clearButton.addEventListener('click', clearCurrentMode);
-resetButton.addEventListener('click', resetAll);
-previewHeightInput.addEventListener('change', updatePreviewHeight);
-
+Object.values(templates).forEach((template, index) => templateSelect.add(new Option(template.label, Object.keys(templates)[index])));
+Object.entries(modes).forEach(([key, mode]) => modeSelect.add(new Option(mode.label, key)));
+modeButtons.forEach((button) => { button.addEventListener('click', () => setMode(button.dataset.mode)); button.addEventListener('keydown', (event) => { const i = modeButtons.indexOf(button); const move = (n) => { const next = modeButtons[(i + n + modeButtons.length) % modeButtons.length]; next.focus(); setMode(next.dataset.mode); }; if (event.key === 'ArrowRight' || event.key === 'ArrowDown') { event.preventDefault(); move(1); } if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') { event.preventDefault(); move(-1); } if (event.key === 'Home') { event.preventDefault(); modeButtons[0].focus(); setMode(modeButtons[0].dataset.mode); } if (event.key === 'End') { event.preventDefault(); modeButtons.at(-1).focus(); setMode(modeButtons.at(-1).dataset.mode); } }); });
+viewportButtons.forEach((button) => button.addEventListener('click', () => setViewport(button.dataset.width)));
+mobileMenuToggle.addEventListener('click', () => { const isOpen = primaryMenu.classList.toggle('is-open'); mobileMenuToggle.setAttribute('aria-expanded', String(isOpen)); });
+runButton.addEventListener('click', runPreview); reloadButton.addEventListener('click', reloadPreview); $('browser-reload').addEventListener('click', reloadPreview); copyButton.addEventListener('click', copyCode); clearButton.addEventListener('click', clearCurrentMode); resetButton.addEventListener('click', resetAll); previewHeightInput.addEventListener('change', () => updatePreviewHeight()); modeSelect.addEventListener('change', (event) => setMode(event.target.value)); zoomSelect.addEventListener('change', (event) => { state.zoom = Number(event.target.value); applyPreviewSize(); }); wrapToggle.addEventListener('change', () => { state.wrap = wrapToggle.checked; renderEditors(); }); autoPreviewToggle.addEventListener('change', () => { state.autoPreview = autoPreviewToggle.checked; setStatus(state.autoPreview ? 'Auto Preview enabled.' : 'Auto Preview off.', 'info'); if (state.autoPreview) queueAutoPreview(); }); templateSelect.addEventListener('change', (event) => applyTemplate(event.target.value)); recentRunsSelect.addEventListener('change', (event) => restoreRecent(event.target.value)); ['fullscreen-preview', 'toolbar-fullscreen', 'browser-fullscreen'].forEach((id) => $(id).addEventListener('click', openFullscreen)); closeFullscreenButton.addEventListener('click', closeFullscreen);
+document.addEventListener('keydown', (event) => { const mod = event.ctrlKey || event.metaKey; if (event.key === 'Escape' && !fullscreenOverlay.hidden) closeFullscreen(); if (!mod) return; if (event.key === 'Enter') { event.preventDefault(); runPreview(); } if (event.shiftKey && event.key.toLowerCase() === 'r') { event.preventDefault(); reloadPreview(); } if (event.shiftKey && event.key.toLowerCase() === 'c') { event.preventDefault(); copyCode(); } });
+function startHeightResize(startY) { const startHeight = state.previewHeight; const move = (event) => updatePreviewHeight(Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startHeight + event.clientY - startY))); const stop = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', stop); document.body.style.cursor = ''; }; document.body.style.cursor = 'ns-resize'; document.addEventListener('pointermove', move); document.addEventListener('pointerup', stop); }
+heightResizer.addEventListener('pointerdown', (event) => { if (matchMedia('(max-width: 1050px)').matches) return; heightResizer.setPointerCapture(event.pointerId); startHeightResize(event.clientY); });
+panelDivider.addEventListener('pointerdown', (event) => { if (matchMedia('(max-width: 1050px)').matches) return; const rect = workspacePanels.getBoundingClientRect(); const move = (moveEvent) => { const percent = ((moveEvent.clientX - rect.left) / rect.width) * 100; const left = Math.min(62, Math.max(34, percent)); workspacePanels.style.gridTemplateColumns = `${left}fr 13px ${100 - left}fr`; }; const stop = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', stop); document.body.style.cursor = ''; }; document.body.style.cursor = 'col-resize'; document.addEventListener('pointermove', move); document.addEventListener('pointerup', stop); });
+panelDivider.addEventListener('keydown', (event) => { const current = Number((workspacePanels.style.gridTemplateColumns.match(/([\d.]+)fr/) || [0, 45])[1]); if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); const next = Math.min(62, Math.max(34, current + (event.key === 'ArrowRight' ? 3 : -3))); workspacePanels.style.gridTemplateColumns = `${next}fr 13px ${100 - next}fr`; } });
 currentYear.textContent = String(new Date().getFullYear());
-renderEditors();
-applyPreviewSize();
+renderEditors(); applyPreviewSize(); updateRecentRuns();

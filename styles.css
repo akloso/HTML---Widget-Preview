@@ -1,170 +1,142 @@
 :root {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #111827;
-  background: #f7faf8;
+  color: #10231c;
+  background: #f7fbf8;
+  --emerald: #059669;
+  --emerald-dark: #047857;
+  --emerald-soft: #ecfdf5;
+  --border: #dce7e1;
+  --muted: #5f6f67;
+  --text: #10231c;
+  --shadow: 0 18px 46px -30px rgba(15, 46, 33, 0.38);
 }
 
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
+html { min-width: 320px; overflow-x: hidden; }
 body {
   margin: 0;
   min-width: 320px;
-  background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 45%, #ffffff 100%);
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 52%, #ffffff 100%);
 }
+button, textarea { font: inherit; }
+button { border: 0; }
 
-button,
-select,
-textarea {
-  font: inherit;
+.site-header,
+.site-footer,
+.page-shell { width: min(100% - 32px, 1080px); margin-inline: auto; }
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 0 10px;
 }
-
-.page-shell {
-  min-height: 100vh;
-  padding: 32px 16px;
+.logo {
+  color: var(--emerald-dark);
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-decoration: none;
 }
-
-.tool-card {
-  width: min(100%, 980px);
-  margin: 0 auto;
-  padding: 24px;
-  border: 1px solid #d1d5db;
-  border-radius: 24px;
-  background: #ffffff;
-  box-shadow: 0 18px 50px -28px rgba(17, 24, 39, 0.28);
-}
-
-.tool-header {
-  margin-bottom: 24px;
-}
-
-.brand {
-  margin: 0 0 8px;
-  color: #047857;
+.product-label {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: #315244;
+  font-size: 0.82rem;
   font-weight: 700;
+  padding: 6px 10px;
+  background: #ffffff;
 }
-
+.page-shell { padding: 18px 0 24px; }
+.tool-card {
+  padding: clamp(20px, 4vw, 36px);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+.tool-header { margin-bottom: 24px; }
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--emerald-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 h1 {
   margin: 0;
-  font-size: clamp(2rem, 5vw, 3.25rem);
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+  color: var(--text);
+  font-size: clamp(2rem, 6vw, 3.65rem);
+  line-height: 1.02;
+  letter-spacing: -0.055em;
 }
-
-.intro {
-  max-width: 680px;
-  margin: 12px 0 0;
-  color: #4b5563;
-  line-height: 1.6;
+.intro { max-width: 720px; margin: 14px 0 0; color: var(--muted); line-height: 1.65; }
+.section-title { margin: 0 0 10px; color: #233b31; font-size: 0.95rem; }
+.mode-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.mode-tab {
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #294438;
+  cursor: pointer;
+  font-weight: 750;
+  line-height: 1.1;
 }
-
-.field-group {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-label {
-  font-weight: 700;
-  color: #1f2937;
-}
-
-select,
+.mode-tab[aria-checked="true"] { border-color: var(--emerald); background: var(--emerald-soft); color: #03543f; }
+.editor-area { display: grid; gap: 18px; }
+.editor-block { display: grid; gap: 8px; min-width: 0; }
+label { color: #233b31; font-weight: 750; }
 textarea {
   width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  background: #ffffff;
-  color: #111827;
+  min-height: 210px;
+  max-width: 100%;
+  padding: 15px;
+  resize: vertical;
+  overflow: auto;
+  border: 1px solid #cbd8d1;
+  border-radius: 16px;
   outline: none;
+  background: #ffffff;
+  color: #10231c;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.92rem;
+  line-height: 1.58;
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
-
-select {
-  min-height: 46px;
-  padding: 0 14px;
+textarea::placeholder { color: #8a9a92; }
+.logo:focus-visible, .mode-tab:focus-visible, textarea:focus-visible, .button:focus-visible {
+  outline: 3px solid rgba(16, 185, 129, 0.35);
+  outline-offset: 3px;
 }
-
-textarea {
-  min-height: 220px;
-  padding: 16px;
-  resize: vertical;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 0.92rem;
-  line-height: 1.6;
-}
-
-select:focus-visible,
-textarea:focus-visible,
-.button:focus-visible {
-  border-color: #10b981;
-  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
-}
-
-.editor-area {
-  display: grid;
-  gap: 18px;
-}
-
-.editor-block {
-  display: grid;
-  gap: 8px;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 22px;
-}
-
+textarea:focus-visible { border-color: var(--emerald); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.14); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
 .button {
   min-height: 44px;
   padding: 10px 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 12px;
   background: #ffffff;
-  color: #1f2937;
-  font-weight: 700;
+  color: #233b31;
   cursor: pointer;
+  font-weight: 800;
 }
+.button:hover { background: #f7faf8; }
+.button-primary { border-color: var(--emerald); background: var(--emerald); color: #ffffff; }
+.button-primary:hover { background: var(--emerald-dark); }
+.status { min-height: 22px; margin: 16px 0 0; color: #3f5f51; font-size: 0.95rem; }
+.site-footer { padding: 0 0 22px; color: var(--muted); font-size: 0.9rem; }
+.site-footer p { margin: 0; }
 
-.button:hover {
-  background: #f9fafb;
-}
-
-.button-primary {
-  border-color: #059669;
-  background: #059669;
-  color: #ffffff;
-}
-
-.button-primary:hover {
-  background: #047857;
-}
-
-.status {
-  min-height: 24px;
-  margin: 16px 0 0;
-  color: #4b5563;
-}
-
-@media (max-width: 640px) {
-  .page-shell {
-    padding: 16px 12px;
-  }
-
-  .tool-card {
-    padding: 18px;
-    border-radius: 18px;
-  }
-
-  textarea {
-    min-height: 180px;
-  }
-
-  .button {
-    flex: 1 1 140px;
-  }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+@media (max-width: 520px) {
+  .site-header, .site-footer, .page-shell { width: min(100% - 24px, 1080px); }
+  .site-header { padding-top: 14px; }
+  .tool-card { border-radius: 20px; }
+  .mode-tab { flex: 1 1 145px; }
+  textarea { min-height: 176px; font-size: 0.86rem; }
+  .button { flex: 1 1 132px; }
 }

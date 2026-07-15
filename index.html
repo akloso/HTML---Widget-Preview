@@ -3,59 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Paste HTML, iframe, form, or JavaScript widget code and open it in a new browser preview." />
+  <meta name="description" content="Paste HTML, iframe, form, or JavaScript widget code and preview it directly on the page." />
   <meta name="theme-color" content="#059669" />
   <link rel="canonical" href="https://akloso.github.io/HTML---Widget-Preview/" />
   <meta property="og:title" content="HTML &amp; Widget Preview | Zapora" />
-  <meta property="og:description" content="Paste HTML, iframe, form, or JavaScript widget code and open it in a new browser preview." />
+  <meta property="og:description" content="Paste HTML, iframe, form, or JavaScript widget code and preview it directly on the page." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://akloso.github.io/HTML---Widget-Preview/" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="HTML &amp; Widget Preview | Zapora" />
-  <meta name="twitter:description" content="Paste HTML, iframe, form, or JavaScript widget code and open it in a new browser preview." />
+  <meta name="twitter:description" content="Paste HTML, iframe, form, or JavaScript widget code and preview it directly on the page." />
   <title>HTML &amp; Widget Preview | Zapora</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="site-header">
-    <a class="logo" href="https://www.zapora.in/" rel="noopener">Zapora</a>
-    <span class="product-label">Widget Preview</span>
+    <nav class="nav-shell" aria-label="Primary navigation">
+      <a class="logo" href="https://www.zapora.in/" rel="noopener">Zapora</a>
+      <button id="mobile-menu-toggle" class="mobile-menu-toggle" type="button" aria-controls="primary-menu" aria-expanded="false">Menu</button>
+      <div id="primary-menu" class="primary-menu">
+        <a href="https://www.zapora.in/" rel="noopener">Home</a>
+        <details class="tools-menu">
+          <summary>All Tools</summary>
+          <div class="dropdown-panel">
+            <p class="dropdown-heading">All Tools</p>
+            <a href="https://www.zapora.in/" rel="noopener">WhatsApp Link Generator</a>
+            <a href="https://www.zapora.in/bulk-whatsapp-link-generator" rel="noopener">Bulk WhatsApp Link Generator</a>
+            <a href="https://www.zapora.in/qr-code-editor" rel="noopener">QR Code Editor</a>
+            <a href="https://www.zapora.in/whatsapp-button-maker" rel="noopener">WhatsApp Button Maker</a>
+            <p class="dropdown-heading">Other Tools</p>
+            <a href="https://www.zapora.in/icr-trends-dashboard" rel="noopener">ICR Trends Dashboard</a>
+            <a class="active" href="https://akloso.github.io/HTML---Widget-Preview/" aria-current="page">HTML &amp; Widget Preview</a>
+          </div>
+        </details>
+        <a href="https://www.zapora.in/blog" rel="noopener">Blog</a>
+        <a href="https://www.zapora.in/privacy" rel="noopener">Privacy</a>
+        <a href="https://www.zapora.in/contact" rel="noopener">Contact</a>
+      </div>
+    </nav>
   </header>
 
   <main class="page-shell">
-    <section class="tool-card" aria-labelledby="page-title">
-      <div class="tool-header">
-        <p class="eyebrow">Public preview tool</p>
-        <h1 id="page-title">HTML &amp; Widget Preview</h1>
-        <p class="intro">Paste HTML, iframe, form, or JavaScript widget code and open it in a new browser preview.</p>
-      </div>
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">Public preview tool</p>
+      <h1 id="page-title">HTML &amp; Widget Preview</h1>
+      <p class="intro">Paste HTML, iframe, form, or JavaScript widget code and preview it directly on the page.</p>
+    </section>
 
-      <div class="mode-section" aria-labelledby="mode-heading">
-        <h2 id="mode-heading" class="section-title">Input format</h2>
-        <div class="mode-tabs" role="radiogroup" aria-label="Input format">
-          <button class="mode-tab" type="button" role="radio" aria-checked="true" data-mode="combined">Combined Code</button>
-          <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="div-script">DIV + Script</button>
-          <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="button-script">Button + Script</button>
-          <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="iframe">Iframe Only</button>
-          <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="html-css-js">HTML + CSS + JavaScript</button>
+    <section class="tool-grid" aria-label="HTML and widget preview tool">
+      <div class="tool-card editor-card">
+        <div class="mode-section" aria-labelledby="mode-heading">
+          <h2 id="mode-heading" class="section-title">Input format</h2>
+          <div class="mode-tabs" role="radiogroup" aria-label="Input format">
+            <button class="mode-tab" type="button" role="radio" aria-checked="true" data-mode="combined">Combined Code</button>
+            <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="div-script">DIV + Script</button>
+            <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="button-script">Button + Script</button>
+            <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="iframe">Iframe Only</button>
+            <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="html-css-js">HTML + CSS + JavaScript</button>
+          </div>
         </div>
+
+        <div id="editor-area" class="editor-area"></div>
+
+        <div class="actions" aria-label="Preview actions">
+          <button id="run-preview" class="button button-primary" type="button">Run Preview</button>
+          <button id="reload-preview" class="button" type="button">Reload Preview</button>
+          <button id="copy-code" class="button" type="button">Copy Code</button>
+          <button id="clear-code" class="button" type="button">Clear</button>
+          <button id="reset-all" class="button" type="button">Reset</button>
+        </div>
+
+        <p id="status" class="status status-info" role="status" aria-live="polite"></p>
       </div>
 
-      <div id="editor-area" class="editor-area"></div>
-
-      <div class="actions" aria-label="Preview actions">
-        <button id="run-preview" class="button button-primary" type="button">Run Preview</button>
-        <button id="copy-code" class="button" type="button">Copy Code</button>
-        <button id="clear-code" class="button" type="button">Clear</button>
-        <button id="reset-all" class="button" type="button">Reset</button>
-      </div>
-
-      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <aside class="tool-card preview-card" aria-labelledby="preview-heading">
+        <div class="preview-card-header">
+          <div>
+            <h2 id="preview-heading" class="section-title">Preview</h2>
+            <p class="preview-help">Render the active mode in an isolated iframe without changing this page.</p>
+          </div>
+        </div>
+        <div class="preview-controls" aria-label="Preview display controls">
+          <div class="viewport-buttons" role="radiogroup" aria-label="Preview width">
+            <button class="viewport-button" type="button" role="radio" aria-checked="true" data-width="desktop">Desktop</button>
+            <button class="viewport-button" type="button" role="radio" aria-checked="false" data-width="tablet">Tablet</button>
+            <button class="viewport-button" type="button" role="radio" aria-checked="false" data-width="mobile">Mobile</button>
+          </div>
+          <label class="height-control" for="preview-height">Custom height</label>
+          <input id="preview-height" class="height-input" type="number" min="240" max="1600" step="10" value="640" inputmode="numeric" />
+        </div>
+        <div id="preview-stage" class="preview-stage preview-desktop" style="--preview-height: 640px;">
+          <div id="preview-empty" class="preview-empty">Your preview will appear here after you click Run Preview.</div>
+        </div>
+      </aside>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>Built with plain HTML, CSS, and JavaScript. No data is stored or sent.</p>
+    <div class="footer-shell">
+      <div>
+        <a class="footer-logo" href="https://www.zapora.in/" rel="noopener">Zapora</a>
+        <p>Simple tools for WhatsApp links, QR codes, buttons, and embeddable web widgets.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="https://www.zapora.in/blog" rel="noopener">Blog</a>
+        <a href="https://www.zapora.in/privacy" rel="noopener">Privacy</a>
+        <a href="https://www.zapora.in/terms" rel="noopener">Terms</a>
+        <a href="https://www.zapora.in/contact" rel="noopener">Contact</a>
+      </nav>
+      <p class="footer-note">© <span id="current-year">2026</span> Zapora. Not affiliated with WhatsApp or Meta Platforms, Inc.</p>
+    </div>
   </footer>
 
   <script src="script.js"></script>

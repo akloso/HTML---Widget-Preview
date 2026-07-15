@@ -3,115 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Paste HTML, iframe, form, or JavaScript widget code and preview it directly on the page." />
-  <meta name="theme-color" content="#059669" />
+  <meta name="description" content="Paste your code and preview it instantly." />
+  <meta name="theme-color" content="#16a34a" />
   <link rel="canonical" href="https://akloso.github.io/HTML---Widget-Preview/" />
   <meta property="og:title" content="HTML &amp; Widget Preview | Zapora" />
-  <meta property="og:description" content="Paste HTML, iframe, form, or JavaScript widget code and preview it directly on the page." />
+  <meta property="og:description" content="Paste your code and preview it instantly." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://akloso.github.io/HTML---Widget-Preview/" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="HTML &amp; Widget Preview | Zapora" />
-  <meta name="twitter:description" content="Paste HTML, iframe, form, or JavaScript widget code and preview it directly on the page." />
+  <meta name="twitter:description" content="Paste your code and preview it instantly." />
   <title>HTML &amp; Widget Preview | Zapora</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <header class="site-header">
+<body class="mode-combined">
+  <header class="site-header" data-header>
     <nav class="nav-shell" aria-label="Primary navigation">
-      <a class="logo" href="https://www.zapora.in/" rel="noopener" aria-label="Zapora home"><span class="logo-mark">Z</span><span>Zapora</span></a>
-      <button id="mobile-menu-toggle" class="mobile-menu-toggle" type="button" aria-controls="primary-menu" aria-expanded="false"><span>Menu</span><span aria-hidden="true">☰</span></button>
+      <a class="brand-link" href="https://www.zapora.in/" aria-label="Zapora home">
+        <img src="https://www.zapora.in/logo.svg" alt="Zapora" width="130" height="40" />
+      </a>
       <div id="primary-menu" class="primary-menu">
-        <a href="https://www.zapora.in/" rel="noopener">Home</a>
-        <details class="tools-menu">
-          <summary>All Tools</summary>
-          <div class="dropdown-panel">
-            <p class="dropdown-heading">All Tools</p>
-            <a href="https://www.zapora.in/" rel="noopener">WhatsApp Link Generator</a>
-            <a href="https://www.zapora.in/bulk-whatsapp-link-generator" rel="noopener">Bulk WhatsApp Link Generator</a>
-            <a href="https://www.zapora.in/qr-code-editor" rel="noopener">QR Code Editor</a>
-            <a href="https://www.zapora.in/whatsapp-button-maker" rel="noopener">WhatsApp Button Maker</a>
-            <p class="dropdown-heading">Other Tools</p>
-            <a href="https://www.zapora.in/icr-trends-dashboard" rel="noopener">ICR Trends Dashboard</a>
-            <a class="active" href="https://akloso.github.io/HTML---Widget-Preview/" aria-current="page">HTML &amp; Widget Preview</a>
+        <div class="nav-dropdown" data-tools-menu>
+          <button id="tools-button" class="nav-link nav-trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+            All Tools <span aria-hidden="true">⌄</span>
+          </button>
+          <div class="tools-panel" role="menu" aria-labelledby="tools-button">
+            <a href="https://www.zapora.in/" role="menuitem"><strong>WhatsApp Link Generator</strong><span>Create single wa.me links</span></a>
+            <a href="https://www.zapora.in/bulk-whatsapp-link-generator" role="menuitem"><strong>Bulk WhatsApp Link Generator</strong><span>Generate links from many numbers</span></a>
+            <a href="https://www.zapora.in/qr-code-editor" role="menuitem"><strong>QR Code Editor</strong><span>Design and export QR codes</span></a>
+            <a href="https://www.zapora.in/whatsapp-button-maker" role="menuitem"><strong>WhatsApp Button Maker</strong><span>Create website click-to-chat buttons</span></a>
+            <div class="other-tools" data-other-tools>
+              <button class="other-tools-trigger" type="button" aria-haspopup="menu" aria-expanded="false">Other Tools <span aria-hidden="true">›</span></button>
+              <div class="other-tools-panel" role="menu">
+                <a href="https://www.zapora.in/icr-trends-dashboard" role="menuitem">ICR Trends Dashboard</a>
+                <a class="active" href="https://akloso.github.io/HTML---Widget-Preview/" role="menuitem" aria-current="page">HTML &amp; Widget Preview</a>
+              </div>
+            </div>
           </div>
-        </details>
-        <a href="https://www.zapora.in/blog" rel="noopener">Blog</a>
-        <a href="https://www.zapora.in/privacy" rel="noopener">Privacy</a>
-        <a href="https://www.zapora.in/contact" rel="noopener">Contact</a>
+        </div>
+        <a class="nav-link" href="https://www.zapora.in/blog">Blog</a>
+        <a class="nav-link" href="https://www.zapora.in/privacy">Privacy</a>
+        <a class="nav-link" href="https://www.zapora.in/contact">Contact</a>
       </div>
+      <button id="mobile-menu-toggle" class="mobile-menu-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Toggle navigation menu"><span class="menu-icon" aria-hidden="true"></span></button>
     </nav>
   </header>
 
   <main class="page-shell">
     <section class="hero" aria-labelledby="page-title">
-      <p class="eyebrow">PUBLIC PREVIEW TOOL</p>
       <h1 id="page-title">HTML &amp; Widget Preview</h1>
-      <p class="intro">Paste HTML, iframe, form, or JavaScript widget code and preview it directly on the page.</p>
+      <p>Paste your code and preview it instantly.</p>
     </section>
 
-    <section class="workspace-shell" aria-label="HTML and widget preview workspace">
+    <section id="workspace" class="workspace-shell" aria-label="HTML and widget preview workspace">
+      <div class="workspace-glow" aria-hidden="true"></div>
       <div class="workspace-toolbar">
-        <div class="toolbar-context">
-          <span id="active-mode-icon" class="mode-icon" aria-hidden="true">⌘</span>
-          <div><p class="toolbar-kicker">Active mode</p><p id="active-mode-label" class="toolbar-title">Combined Code</p></div>
-          <span id="editor-status-chip" class="chip">0 chars</span>
+        <div class="mode-summary">
+          <span id="status-dot" class="status-dot" aria-hidden="true"></span>
+          <span id="active-mode-label">Combined</span>
+          <span id="status" class="sr-status" role="status" aria-live="polite">Ready</span>
         </div>
-        <div class="toolbar-controls" aria-label="Workspace display controls">
+        <div class="toolbar-controls" aria-label="Preview controls">
           <div class="viewport-buttons" role="radiogroup" aria-label="Preview width">
-            <button class="viewport-button" type="button" role="radio" aria-checked="true" data-width="desktop">Desktop</button>
-            <button class="viewport-button" type="button" role="radio" aria-checked="false" data-width="tablet">Tablet</button>
-            <button class="viewport-button" type="button" role="radio" aria-checked="false" data-width="mobile">Mobile</button>
+            <button class="viewport-button" type="button" role="radio" aria-checked="true" data-width="desktop" title="Desktop">Desktop</button>
+            <button class="viewport-button" type="button" role="radio" aria-checked="false" data-width="tablet" title="Tablet">Tablet</button>
+            <button class="viewport-button" type="button" role="radio" aria-checked="false" data-width="mobile" title="Mobile">Mobile</button>
           </div>
-          <label class="select-label" for="zoom-select">Zoom</label>
+          <label class="sr-only" for="zoom-select">Preview zoom</label>
           <select id="zoom-select" class="control-select" aria-label="Preview zoom"><option value="0.75">75%</option><option value="1" selected>100%</option><option value="1.25">125%</option></select>
-          <button id="toolbar-fullscreen" class="button button-compact" type="button">⛶ Fullscreen</button>
+          <button id="toolbar-fullscreen" class="button button-secondary" type="button" title="Fullscreen preview">⛶ Fullscreen</button>
         </div>
       </div>
 
       <div class="mode-strip" aria-labelledby="mode-heading">
-        <div class="mode-strip-header"><h2 id="mode-heading" class="section-title">Input format</h2><label class="mobile-mode-label" for="mode-select">Mode</label><select id="mode-select" class="mode-select" aria-label="Input format"></select></div>
+        <h2 id="mode-heading" class="sr-only">Input format</h2>
+        <label class="sr-only" for="mode-select">Input format</label>
+        <select id="mode-select" class="mode-select" aria-label="Input format"></select>
         <div class="mode-tabs" role="radiogroup" aria-label="Input format">
-          <button class="mode-tab accent-combined" type="button" role="radio" aria-checked="true" data-mode="combined"><span>⌘</span><strong>Combined Code</strong><small>Full snippet</small></button>
-          <button class="mode-tab accent-div" type="button" role="radio" aria-checked="false" data-mode="div-script"><span>▣</span><strong>DIV + Script</strong><small>Placeholder widget</small></button>
-          <button class="mode-tab accent-button" type="button" role="radio" aria-checked="false" data-mode="button-script"><span>◈</span><strong>Button + Script</strong><small>Trigger popup</small></button>
-          <button class="mode-tab accent-iframe" type="button" role="radio" aria-checked="false" data-mode="iframe"><span>▤</span><strong>Iframe Only</strong><small>Embed frame</small></button>
-          <button class="mode-tab accent-html" type="button" role="radio" aria-checked="false" data-mode="html-css-js"><span>{ }</span><strong>HTML + CSS + JS</strong><small>Custom build</small></button>
+          <button class="mode-tab accent-combined" type="button" role="radio" aria-checked="true" data-mode="combined"><span aria-hidden="true">⌘</span>Combined</button>
+          <button class="mode-tab accent-div" type="button" role="radio" aria-checked="false" data-mode="div-script"><span aria-hidden="true">▣</span>DIV + Script</button>
+          <button class="mode-tab accent-button" type="button" role="radio" aria-checked="false" data-mode="button-script"><span aria-hidden="true">◈</span>Button + Script</button>
+          <button class="mode-tab accent-iframe" type="button" role="radio" aria-checked="false" data-mode="iframe"><span aria-hidden="true">▤</span>Iframe</button>
+          <button class="mode-tab accent-html" type="button" role="radio" aria-checked="false" data-mode="html-css-js"><span aria-hidden="true">{ }</span>HTML/CSS/JS</button>
         </div>
-        <p id="context-help" class="context-help">Paste the full snippet exactly as provided.</p>
       </div>
 
       <div id="workspace-panels" class="workspace-panels">
         <section id="editor-panel" class="editor-panel" aria-label="Code editor">
-          <div class="panel-header"><div><h2 class="section-title">Editor</h2><p class="panel-help">Write or paste code. Use Tab for indentation.</p></div><label class="toggle"><input id="wrap-toggle" type="checkbox" checked /> <span>Wrap Lines</span></label></div>
-          <div class="utility-row">
-            <label class="select-label" for="template-select">Templates</label><select id="template-select" class="control-select"><option value="">Choose starter…</option></select>
-            <label class="toggle"><input id="auto-preview" type="checkbox" /> <span>Auto Preview</span></label>
-            <label class="select-label" for="recent-runs">Recent</label><select id="recent-runs" class="control-select" disabled><option value="">No runs yet</option></select>
+          <div class="editor-toolbar">
+            <button id="more-toggle" class="button button-quiet" type="button" aria-expanded="false" aria-controls="more-popover">More</button>
+            <div id="more-popover" class="more-popover" hidden>
+              <label class="compact-field"><span>Template</span><select id="template-select" class="control-select"><option value="">Choose starter…</option></select></label>
+              <label class="switch"><input id="auto-preview" type="checkbox" /> <span>Auto Preview</span></label>
+              <label class="compact-field"><span>Recent</span><select id="recent-runs" class="control-select" disabled><option value="">No runs yet</option></select></label>
+              <label class="switch"><input id="wrap-toggle" type="checkbox" checked /> <span>Wrap Lines</span></label>
+              <p class="shortcut-note">Ctrl/Cmd Enter runs · Shift+R reloads · Shift+C copies</p>
+            </div>
           </div>
           <div id="editor-area" class="editor-area"></div>
-          <div class="shortcuts" aria-label="Keyboard shortcuts"><span>⌘/Ctrl + Enter Run</span><span>⌘/Ctrl + Shift + R Reload</span><span>⌘/Ctrl + Shift + C Copy</span></div>
           <div class="action-toolbar" aria-label="Preview actions">
-            <div class="action-group primary-actions"><button id="run-preview" class="button button-primary" type="button">▶ Run Preview</button></div>
-            <div class="action-group"><span class="group-label">Preview</span><button id="reload-preview" class="button" type="button">↻ Reload</button><button id="fullscreen-preview" class="button" type="button">⛶ Fullscreen</button></div>
-            <div class="action-group"><span class="group-label">Code</span><button id="copy-code" class="button" type="button">⧉ Copy Code</button><button id="clear-code" class="button" type="button">⌫ Clear</button></div>
-            <div class="action-group"><span class="group-label">Secondary</span><button id="reset-all" class="button button-muted" type="button">Reset</button></div>
+            <button id="run-preview" class="button button-primary" type="button">▶ Run Preview</button>
+            <button id="reload-preview" class="button button-secondary" type="button">↻ Reload</button>
+            <button id="fullscreen-preview" class="button button-secondary" type="button">⛶ Fullscreen</button>
+            <button id="copy-code" class="button button-secondary" type="button">⧉ Copy Code</button>
+            <button id="clear-code" class="button button-quiet" type="button">Clear</button>
+            <button id="reset-all" class="button button-quiet" type="button">Reset</button>
           </div>
-          <p id="status" class="status status-info" role="status" aria-live="polite">Ready.</p>
         </section>
         <div id="panel-divider" class="panel-divider" role="separator" tabindex="0" aria-label="Resize editor and preview panels" aria-orientation="vertical"></div>
-        <aside id="preview-panel" class="preview-panel" aria-labelledby="preview-heading">
+        <aside id="preview-panel" class="preview-panel" aria-label="Preview">
           <div class="preview-sticky">
             <div class="browser-frame">
               <div class="browser-topbar">
                 <div class="browser-dots" aria-hidden="true"><span></span><span></span><span></span></div>
                 <div class="address-bar"><span>zapora.preview</span><strong id="device-meta">Desktop · auto × 640</strong></div>
-                <div class="browser-actions"><button id="browser-reload" class="icon-button" type="button" aria-label="Reload preview">↻</button><span id="browser-zoom" class="mini-chip">100%</span><button id="browser-fullscreen" class="icon-button" type="button" aria-label="Fullscreen preview">⛶</button></div>
+                <button id="browser-reload" class="icon-button" type="button" aria-label="Reload preview" title="Reload preview">↻</button>
+                <span id="browser-zoom" class="mini-chip">100%</span>
+                <button id="browser-fullscreen" class="icon-button" type="button" aria-label="Fullscreen preview" title="Fullscreen preview">⛶</button>
               </div>
-              <div class="preview-meta"><div><h2 id="preview-heading" class="section-title">Preview</h2><p class="preview-help">Isolated in-page iframe. The parent page is never replaced.</p></div><span id="preview-status-chip" class="chip">Ready</span></div>
-              <div class="height-row"><label for="preview-height">Height</label><input id="preview-height" class="height-input" type="number" min="240" max="1600" step="10" value="640" inputmode="numeric" /><span>px</span></div>
+              <div class="preview-options">
+                <span id="preview-status-chip" class="status-badge"><span></span>Ready</span>
+                <label class="height-row" for="preview-height">Height <input id="preview-height" class="height-input" type="number" min="240" max="1600" step="10" value="640" inputmode="numeric" /> px</label>
+              </div>
               <div id="preview-stage" class="preview-stage preview-desktop" style="--preview-height: 640px; --preview-zoom: 1;">
-                <div id="preview-empty" class="preview-empty"><span class="empty-icon" aria-hidden="true">▱</span><strong>Preview ready</strong><span>Paste code and click Run Preview</span></div>
+                <div id="preview-empty" class="preview-empty"><span class="empty-icon" aria-hidden="true">▱</span><strong>Ready</strong><span>Run a preview to begin.</span></div>
               </div>
               <button id="height-resizer" class="height-resizer" type="button" aria-label="Drag to resize preview height" aria-valuemin="240" aria-valuemax="1600" aria-valuenow="640"><span></span></button>
             </div>
@@ -122,18 +138,23 @@
   </main>
 
   <div id="fullscreen-overlay" class="fullscreen-overlay" hidden role="dialog" aria-modal="true" aria-label="Fullscreen preview">
-    <div class="fullscreen-bar"><div><strong>Fullscreen Preview</strong><span id="fullscreen-meta">Desktop · 100%</span></div><button id="close-fullscreen" class="button" type="button">Close Esc</button></div>
+    <div class="fullscreen-bar"><span id="fullscreen-meta">Desktop · 100%</span><button id="close-fullscreen" class="button button-secondary" type="button">Close Esc</button></div>
     <div id="fullscreen-stage" class="fullscreen-stage"></div>
   </div>
 
   <footer class="site-footer">
     <div class="footer-shell">
-      <div><a class="footer-logo" href="https://www.zapora.in/" rel="noopener">Zapora</a><p>Simple tools for WhatsApp links, QR codes, buttons, and embeddable web widgets.</p></div>
-      <nav class="footer-links" aria-label="Footer navigation"><a href="https://www.zapora.in/blog" rel="noopener">Blog</a><a href="https://www.zapora.in/privacy" rel="noopener">Privacy</a><a href="https://www.zapora.in/terms" rel="noopener">Terms</a><a href="https://www.zapora.in/contact" rel="noopener">Contact</a></nav>
-      <p class="footer-note">© <span id="current-year">2026</span> Zapora. Not affiliated with WhatsApp or Meta Platforms, Inc.</p>
+      <div class="footer-brand"><img src="https://www.zapora.in/logo.svg" alt="Zapora" width="130" height="40" /><p>Preview HTML and widget snippets instantly.</p></div>
+      <nav class="footer-links" aria-label="Footer navigation"><a href="https://www.zapora.in/blog">Blog</a><span aria-hidden="true">•</span><a href="https://www.zapora.in/privacy">Privacy</a><span aria-hidden="true">•</span><a href="https://www.zapora.in/terms">Terms</a><span aria-hidden="true">•</span><a href="https://www.zapora.in/contact">Contact</a></nav>
+      <p class="footer-note">© <span id="current-year">2026</span> Zapora. Built with care.<br />Not affiliated with WhatsApp or Meta Platforms, Inc.</p>
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js" defer></script>
+  <script src="script.js" defer></script>
 </body>
 </html>

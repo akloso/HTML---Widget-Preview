@@ -1,13 +1,15 @@
-const modeSelect = document.getElementById('mode');
 const editorArea = document.getElementById('editor-area');
 const statusElement = document.getElementById('status');
 const runButton = document.getElementById('run-preview');
 const copyButton = document.getElementById('copy-code');
 const clearButton = document.getElementById('clear-code');
 const resetButton = document.getElementById('reset-all');
+const modeButtons = Array.from(document.querySelectorAll('.mode-tab'));
+
+const DEFAULT_MODE = 'combined';
 
 const state = {
-  mode: 'combined',
+  mode: DEFAULT_MODE,
   combined: '',
   divCode: '',
   divScript: '',
@@ -21,15 +23,15 @@ const state = {
 
 const modeFields = {
   combined: [
-    { key: 'combined', label: 'Complete code', placeholder: '<div>...</div>\n<script>...</script>' },
+    { key: 'combined', label: 'Complete widget or embed code', placeholder: '<div>...</div>\n<script>...</script>' },
   ],
   'div-script': [
-    { key: 'divCode', label: 'DIV / placeholder code', placeholder: '<div class="widget-placeholder"></div>' },
+    { key: 'divCode', label: 'DIV / Placeholder code', placeholder: '<div class="widget-placeholder"></div>' },
     { key: 'divScript', label: 'Script code', placeholder: '<script src="https://provider.com/widget.js"></script>' },
   ],
   'button-script': [
     { key: 'buttonCode', label: 'Button code', placeholder: '<button type="button">Open widget</button>' },
-    { key: 'buttonScript', label: 'Script code', placeholder: '<script>...</script>' },
+    { key: 'buttonScript', label: 'Script and configuration code', placeholder: '<script>...</script>' },
   ],
   iframe: [
     { key: 'iframeCode', label: 'Iframe embed code', placeholder: '<iframe src="https://example.com"></iframe>' },
@@ -43,6 +45,14 @@ const modeFields = {
 
 function setStatus(message) {
   statusElement.textContent = message;
+}
+
+function syncModeButtons() {
+  modeButtons.forEach((button) => {
+    const isActive = button.dataset.mode === state.mode;
+    button.setAttribute('aria-checked', String(isActive));
+    button.tabIndex = isActive ? 0 : -1;
+  });
 }
 
 function renderEditors() {
@@ -62,6 +72,8 @@ function renderEditors() {
     textarea.value = state[field.key];
     textarea.placeholder = field.placeholder;
     textarea.spellcheck = false;
+    textarea.autocapitalize = 'off';
+    textarea.autocomplete = 'off';
     textarea.addEventListener('input', (event) => {
       state[field.key] = event.target.value;
     });
@@ -69,6 +81,15 @@ function renderEditors() {
     wrapper.append(label, textarea);
     editorArea.append(wrapper);
   });
+
+  syncModeButtons();
+}
+
+function setMode(mode) {
+  if (!modeFields[mode] || state.mode === mode) return;
+  state.mode = mode;
+  renderEditors();
+  setStatus('');
 }
 
 function getSelectedCode() {
@@ -108,15 +129,15 @@ ${code}
 }
 
 function runPreview() {
-  const code = getSelectedCode().trim();
-  if (!code) {
+  const code = getSelectedCode();
+  if (!code.trim()) {
     setStatus('Paste code before running the preview.');
     return;
   }
 
   const previewWindow = window.open('', '_blank');
   if (!previewWindow) {
-    setStatus('The browser blocked the preview tab. Allow pop-ups and try again.');
+    setStatus('The browser blocked the preview tab.');
     return;
   }
 
@@ -129,7 +150,7 @@ function runPreview() {
 async function copyCode() {
   const code = getSelectedCode();
   if (!code.trim()) {
-    setStatus('There is no code to copy.');
+    setStatus('Paste code before running the preview.');
     return;
   }
 
@@ -137,7 +158,7 @@ async function copyCode() {
     await navigator.clipboard.writeText(code);
     setStatus('Code copied.');
   } catch {
-    setStatus('Copy failed. Select the code and copy it manually.');
+    setStatus('Clipboard access failed.');
   }
 }
 
@@ -146,22 +167,47 @@ function clearCurrentMode() {
     state[field.key] = '';
   });
   renderEditors();
-  setStatus('Current input cleared.');
+  setStatus('Current mode cleared.');
 }
 
 function resetAll() {
   Object.keys(state).forEach((key) => {
-    state[key] = key === 'mode' ? 'combined' : '';
+    state[key] = key === 'mode' ? DEFAULT_MODE : '';
   });
-  modeSelect.value = 'combined';
   renderEditors();
-  setStatus('All inputs reset.');
+  setStatus('All fields reset.');
 }
 
-modeSelect.addEventListener('change', (event) => {
-  state.mode = event.target.value;
-  renderEditors();
-  setStatus('');
+function moveModeFocus(currentButton, direction) {
+  const currentIndex = modeButtons.indexOf(currentButton);
+  const nextIndex = (currentIndex + direction + modeButtons.length) % modeButtons.length;
+  const nextButton = modeButtons[nextIndex];
+  nextButton.focus();
+  setMode(nextButton.dataset.mode);
+}
+
+modeButtons.forEach((button) => {
+  button.addEventListener('click', () => setMode(button.dataset.mode));
+  button.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveModeFocus(button, 1);
+    }
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveModeFocus(button, -1);
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      modeButtons[0].focus();
+      setMode(modeButtons[0].dataset.mode);
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      modeButtons[modeButtons.length - 1].focus();
+      setMode(modeButtons[modeButtons.length - 1].dataset.mode);
+    }
+  });
 });
 
 runButton.addEventListener('click', runPreview);

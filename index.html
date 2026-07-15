@@ -3,33 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Paste HTML, iframe, form, or JavaScript widget code and open it in a browser preview." />
-  <title>HTML & Widget Preview</title>
+  <meta name="description" content="Paste HTML, iframe, form, or JavaScript widget code and open it in a new browser preview." />
+  <meta name="theme-color" content="#059669" />
+  <link rel="canonical" href="https://akloso.github.io/HTML---Widget-Preview/" />
+  <meta property="og:title" content="HTML &amp; Widget Preview | Zapora" />
+  <meta property="og:description" content="Paste HTML, iframe, form, or JavaScript widget code and open it in a new browser preview." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://akloso.github.io/HTML---Widget-Preview/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="HTML &amp; Widget Preview | Zapora" />
+  <meta name="twitter:description" content="Paste HTML, iframe, form, or JavaScript widget code and open it in a new browser preview." />
+  <title>HTML &amp; Widget Preview | Zapora</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <header class="site-header">
+    <a class="logo" href="https://www.zapora.in/" rel="noopener">Zapora</a>
+    <span class="product-label">Widget Preview</span>
+  </header>
+
   <main class="page-shell">
     <section class="tool-card" aria-labelledby="page-title">
-      <header class="tool-header">
-        <p class="brand">Zapora</p>
+      <div class="tool-header">
+        <p class="eyebrow">Public preview tool</p>
         <h1 id="page-title">HTML &amp; Widget Preview</h1>
-        <p class="intro">Paste your widget or embed code and open it in a new browser preview.</p>
-      </header>
+        <p class="intro">Paste HTML, iframe, form, or JavaScript widget code and open it in a new browser preview.</p>
+      </div>
 
-      <div class="field-group">
-        <label for="mode">Input format</label>
-        <select id="mode">
-          <option value="combined">Combined Code</option>
-          <option value="div-script">DIV + Script</option>
-          <option value="button-script">Button + Script</option>
-          <option value="iframe">Iframe Only</option>
-          <option value="html-css-js">HTML + CSS + JavaScript</option>
-        </select>
+      <div class="mode-section" aria-labelledby="mode-heading">
+        <h2 id="mode-heading" class="section-title">Input format</h2>
+        <div class="mode-tabs" role="radiogroup" aria-label="Input format">
+          <button class="mode-tab" type="button" role="radio" aria-checked="true" data-mode="combined">Combined Code</button>
+          <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="div-script">DIV + Script</button>
+          <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="button-script">Button + Script</button>
+          <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="iframe">Iframe Only</button>
+          <button class="mode-tab" type="button" role="radio" aria-checked="false" data-mode="html-css-js">HTML + CSS + JavaScript</button>
+        </div>
       </div>
 
       <div id="editor-area" class="editor-area"></div>
 
-      <div class="actions">
+      <div class="actions" aria-label="Preview actions">
         <button id="run-preview" class="button button-primary" type="button">Run Preview</button>
         <button id="copy-code" class="button" type="button">Copy Code</button>
         <button id="clear-code" class="button" type="button">Clear</button>
@@ -39,6 +53,10 @@
       <p id="status" class="status" role="status" aria-live="polite"></p>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <p>Built with plain HTML, CSS, and JavaScript. No data is stored or sent.</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
